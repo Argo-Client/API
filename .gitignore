@@ -8,6 +8,8 @@ certs
 
 /downloads
 
+/docker-compose.yml
+
 # Logs
 logs
 *.log
