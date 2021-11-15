@@ -2,6 +2,12 @@
 /dist
 /node_modules
 
+# Secure data
+.env*
+certs
+
+/downloads
+
 # Logs
 logs
 *.log
