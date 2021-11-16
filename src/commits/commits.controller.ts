@@ -18,16 +18,9 @@ export class CommitsController {
   @Get()
   @UseInterceptors(CacheInterceptor)
   fetchCommits(@Req() req: Request) {
-    const limit = req.query.limit;
-    const page = req.query.page;
+    const limit = parseInt(req.query.limit as string) || 5;
+    const page = parseInt(req.query.page as string) || 0;
 
-    if (!limit || !page) {
-      throw new BadRequestException("Missing limit or page query parameter");
-    }
-
-    return this.commitsService.fetch(
-      parseInt(limit as string),
-      parseInt(page as string)
-    );
+    return this.commitsService.fetch(limit, page);
   }
 }

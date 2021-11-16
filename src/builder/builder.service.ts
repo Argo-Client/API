@@ -45,12 +45,10 @@ export class BuilderService {
 
     await writeFile(join(apkDir, fileName), file.buffer);
 
-    const download = join(process.env.DOWNLOAD_URL ?? DOWNLOAD_URL, fileName);
-
     await this.commitsService.update(request.body.head_sha, {
       success: true,
       pending: false,
-      download,
+      download: fileName,
     });
 
     return { sucess: "File uploaded" };
