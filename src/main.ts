@@ -1,9 +1,7 @@
+import { AppModule } from "./app.module";
 import { Logger, VersioningType } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-
 import { json, urlencoded } from "body-parser";
-
-import { AppModule } from "./app.module";
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule, {

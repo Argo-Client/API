@@ -1,9 +1,6 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { join } from "path";
-
-import { DOWNLOAD_URL } from "../builder/constants";
 
 import { Commit, CommitDocument } from "./schemas/commit.schema";
 
@@ -23,20 +20,18 @@ export class CommitsService {
     await this.commitModel.findOneAndUpdate({ id }, updated);
   }
 
-  async fetch(limit: number, page: number): Promise<Commit[]> {
+  async fetch(limit: number, page: number, host: string): Promise<[Commit[], number]> {
     const commits = await this.commitModel.find();
 
-    return commits
+    const downloadURL = `http://${host}/builder/download/`;
+
+    return [commits
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       .slice(page * limit, page * limit + limit)
       .map((commit) => {
-        if (commit.download)
-          commit.download = join(
-            process.env.DOWNLOAD_URL ?? DOWNLOAD_URL,
-            commit.download
-          );
+        if (commit.download) commit.download = downloadURL + commit.download;
 
         return commit;
-      });
+      }), commits.length];
   }
 }

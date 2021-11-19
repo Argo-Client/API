@@ -1,12 +1,14 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Observable } from "rxjs";
 
+import { Request } from "./interfaces/request.interface";
+
 @Injectable()
-export class BuilderGuard implements CanActivate {
+export class AdminGuard implements CanActivate {
   private tokenPrefix = "Bearer ";
 
-  checkBearerToken(req: any): boolean {
-    const authHeader: string | void = req.headers["authorization"];
+  checkBearerToken(req: Request): boolean {
+    const authHeader: string | void = req.headers.authorization;
 
     if (authHeader && process.env.UPLOAD_TOKEN) {
       const token = authHeader.slice(

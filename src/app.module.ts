@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
 import { BuilderModule } from "./builder/builder.module";
 import { CommitsModule } from "./commits/commits.module";
+import { DevelopersModule } from "./developers/developers.module";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { CommitsModule } from "./commits/commits.module";
     }),
     BuilderModule,
     CommitsModule,
+    DevelopersModule,
   ],
 })
 export class AppModule {}

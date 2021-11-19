@@ -4,12 +4,7 @@ import { Request } from "express";
 import { ensureDir, writeFile } from "fs-extra";
 import { join } from "path";
 
-import {
-  APK_DIR,
-  DOWNLOAD_URL,
-  GITHUB_EVENT_HEADER,
-  MAX_FILE_SIZE,
-} from "./constants";
+import { APK_DIR, GITHUB_EVENT_HEADER, MAX_FILE_SIZE } from "./constants";
 
 import { GITHUB_EVENT_TYPE } from "../commits/interfaces/commit.interface";
 import { CommitsService } from "../commits/commits.service";
@@ -20,9 +15,15 @@ export class BuilderService {
 
   constructor(private commitsService: CommitsService) {}
 
+  private readonly fileExtensions = ["apk", "snap"];
+
   async handleFileUpload(file: Express.Multer.File, request: Request) {
-    if (!file.originalname.endsWith(".apk")) {
-      throw new BadRequestException("Filename must end with `.apk`");
+    const fileExtension = file.originalname.split(".").pop();
+
+    if (this.fileExtensions.includes(fileExtension)) {
+      throw new BadRequestException(
+        `Filename must end with ${this.fileExtensions.join(" ")}`
+      );
     }
 
     if (file.size > MAX_FILE_SIZE) {

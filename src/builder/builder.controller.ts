@@ -16,7 +16,7 @@ import { Request, Response } from "express";
 import { createReadStream } from "fs-extra";
 import { join } from "path";
 
-import { BuilderGuard } from "./builder.guard";
+import { AdminGuard } from "../admin.guard";
 import { BuilderService } from "./builder.service";
 import { APK_DIR } from "./constants";
 import { WebhookGuard } from "./webhook.guard";
@@ -26,8 +26,8 @@ export class BuilderController {
   constructor(private builderService: BuilderService) {}
 
   @Post("upload")
-  @UseInterceptors(FileInterceptor("apk"))
-  @UseGuards(BuilderGuard)
+  @UseInterceptors(FileInterceptor("file"))
+  @UseGuards(AdminGuard)
   async receiveAPKFile(
     @UploadedFile() file: Express.Multer.File,
     @Req() req: Request
