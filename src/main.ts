@@ -28,10 +28,8 @@ const bootstrap = async () => {
 
 	const logger = new Logger("NestApplication");
 
-	if (!process.env.ADMIN_TOKEN || !process.env.ADMIN_TOKEN)
-		logger.warn(
-			"ADMIN_TOKEN or ADMIN_TOKEN env is not set, disabling builder.",
-		);
+	if (!process.env.ADMIN_TOKEN)
+		logger.warn("ADMIN_TOKEN env is not set, disabling builder.");
 
 	await app.listen(process.env.PORT ?? 3000);
 };
