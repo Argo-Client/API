@@ -23,11 +23,11 @@ export class CommitsService {
 	async fetch(
 		limit: number,
 		page: number,
-		host: string,
+		[host, protocol]: [string, string],
 	): Promise<[Commit[], number]> {
 		const commits = await this.commitModel.find();
 
-		const downloadURL = `http://${host}/v1/builder/download/`;
+		const downloadURL = `${protocol}://${host}/v1/builder/download/`;
 
 		return [
 			commits

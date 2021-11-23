@@ -21,7 +21,7 @@ export class CommitsController {
 		const limit = parseInt(req.query.limit as string) || 5;
 		const page = parseInt(req.query.page as string) || 0;
 
-		const host = req.headers.host;
+		const host = req.hostname;
 
 		if (limit > 100 || limit <= 0) {
 			throw new BadRequestException("Limit parameter is not a valid number");
@@ -31,11 +31,10 @@ export class CommitsController {
 			throw new BadRequestException("You must have a `host` header");
 		}
 
-		const [commits, length] = await this.commitsService.fetch(
-			limit,
-			page,
+		const [commits, length] = await this.commitsService.fetch(limit, page, [
 			host,
-		);
+			req.protocol,
+		]);
 
 		res.set("X-Total-Commits", length.toString());
 
