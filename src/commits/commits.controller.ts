@@ -21,7 +21,7 @@ export class CommitsController {
 		const limit = parseInt(req.query.limit as string) || 5;
 		const page = parseInt(req.query.page as string) || 0;
 
-		const host = req.hostname;
+		const host = req.headers.host;
 
 		if (limit > 100 || limit <= 0) {
 			throw new BadRequestException("Limit parameter is not a valid number");
