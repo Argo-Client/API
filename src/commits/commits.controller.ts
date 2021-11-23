@@ -1,41 +1,44 @@
 import {
-  BadRequestException,
-  CacheInterceptor,
-  Controller,
-  Get,
-  Req,
-  Res,
-  UseInterceptors,
+	BadRequestException,
+	CacheInterceptor,
+	Controller,
+	Get,
+	Req,
+	Res,
+	UseInterceptors,
 } from "@nestjs/common";
-
 import { Request, Response } from "express";
 
 import { CommitsService } from "./commits.service";
 
 @Controller("commits")
 export class CommitsController {
-  constructor(private commitsService: CommitsService) {}
+	constructor(private commitsService: CommitsService) {}
 
-  @Get()
-  @UseInterceptors(CacheInterceptor)
-  async fetchCommits(@Req() req: Request, @Res() res: Response) {
-    const limit = parseInt(req.query.limit as string) || 5;
-    const page = parseInt(req.query.page as string) || 0;
+	@Get()
+	@UseInterceptors(CacheInterceptor)
+	async fetchCommits(@Req() req: Request, @Res() res: Response) {
+		const limit = parseInt(req.query.limit as string) || 5;
+		const page = parseInt(req.query.page as string) || 0;
 
-    const host = req.headers.host;
-    
-    if (limit > 100 || limit <= 0) {
-      throw new BadRequestException("Limit parameter is not a valid number")
-    }
+		const host = req.headers.host;
 
-    if (!host) {
-      throw new BadRequestException("You must have a `host` header");
-    }
+		if (limit > 100 || limit <= 0) {
+			throw new BadRequestException("Limit parameter is not a valid number");
+		}
 
-    const [commits, length] = await this.commitsService.fetch(limit, page, host)
+		if (!host) {
+			throw new BadRequestException("You must have a `host` header");
+		}
 
-    res.set("X-Total-Commits", length.toString())
+		const [commits, length] = await this.commitsService.fetch(
+			limit,
+			page,
+			host,
+		);
 
-    res.json(commits);
-  }
+		res.set("X-Total-Commits", length.toString());
+
+		res.json(commits);
+	}
 }
