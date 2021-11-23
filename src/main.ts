@@ -7,6 +7,9 @@ import { NestFactory } from "@nestjs/core";
 const bootstrap = async () => {
 	const app = await NestFactory.create(AppModule, {
 		bodyParser: false,
+		cors: {
+			origin: "*",
+		},
 	});
 
 	const rawBodyBuffer = (req, res, buf, encoding) => {
@@ -20,13 +23,14 @@ const bootstrap = async () => {
 
 	app.enableVersioning({
 		type: VersioningType.URI,
+		defaultVersion: "1",
 	});
 
 	const logger = new Logger("NestApplication");
 
-	if (!process.env.WEBHOOK_TOKEN || !process.env.UPLOAD_TOKEN)
+	if (!process.env.ADMIN_TOKEN || !process.env.ADMIN_TOKEN)
 		logger.warn(
-			"WEBHOOK_TOKEN or UPLOAD_TOKEN env is not set, disabling builder.",
+			"ADMIN_TOKEN or ADMIN_TOKEN env is not set, disabling builder.",
 		);
 
 	await app.listen(process.env.PORT ?? 3000);

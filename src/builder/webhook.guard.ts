@@ -13,7 +13,7 @@ export class WebhookGuard implements CanActivate {
 	private sigHashAlg = "sha256";
 
 	validateRequest(req: Request): boolean {
-		if (!process.env.WEBHOOK_TOKEN) return false;
+		if (!process.env.ADMIN_TOKEN) return false;
 
 		const validHookTypes =
 			req.get(this.eventHeaderName) == GITHUB_EVENT_TYPE.PUSH ||
@@ -21,7 +21,7 @@ export class WebhookGuard implements CanActivate {
 
 		const sig = Buffer.from(req.get(this.sigHeaderName) || "", "utf8");
 
-		const hmac = createHmac(this.sigHashAlg, process.env.WEBHOOK_TOKEN);
+		const hmac = createHmac(this.sigHashAlg, process.env.ADMIN_TOKEN);
 
 		const digest = Buffer.from(
 			this.sigHashAlg + "=" + hmac.update(req.rawBody).digest("hex"),

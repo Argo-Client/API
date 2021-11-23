@@ -10,13 +10,13 @@ export class AdminGuard implements CanActivate {
 	checkBearerToken(req: Request): boolean {
 		const authHeader: string | void = req.headers.authorization;
 
-		if (authHeader && process.env.UPLOAD_TOKEN) {
+		if (authHeader && process.env.ADMIN_TOKEN) {
 			const token = authHeader.slice(
 				this.tokenPrefix.length,
 				authHeader.length,
 			);
 
-			return token && token == process.env.UPLOAD_TOKEN;
+			return token && token == process.env.ADMIN_TOKEN;
 		}
 	}
 

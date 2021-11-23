@@ -27,14 +27,15 @@ export class CommitsService {
 	): Promise<[Commit[], number]> {
 		const commits = await this.commitModel.find();
 
-		const downloadURL = `http://${host}/builder/download/`;
+		const downloadURL = `http://${host}/v1/builder/download/`;
 
 		return [
 			commits
 				.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
 				.slice(page * limit, page * limit + limit)
 				.map((commit) => {
-					if (commit.download) commit.download = downloadURL + commit.download;
+					if (commit.download)
+						commit.download = downloadURL + commit.download.replace("/", "");
 
 					return commit;
 				}),
