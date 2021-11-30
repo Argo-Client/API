@@ -16,6 +16,8 @@ export class DevelopersService {
 	}
 
 	async add(developer: Developer) {
-		await this.developerModel.create(developer);
+		const Developer = new this.developerModel(developer);
+
+		await Developer.save();
 	}
 }

@@ -6,12 +6,14 @@ import {
 	Post,
 	Req,
 	UseGuards,
+	Version,
 } from "@nestjs/common";
 
 import { AdminGuard } from "../admin.guard";
 import { Developer } from "./schemas/developer.schema";
 import { DevelopersService } from "./developers.service";
 import { Request } from "express";
+import { join } from "path";
 
 @Controller("developers")
 export class DevelopersController {
@@ -23,11 +25,13 @@ export class DevelopersController {
 			throw new BadRequestException("You must have a `host` header");
 		}
 
-		const baseURL = `http://${req.headers.host}/developers/`;
+		const version = "v" + 1;
+
+		const baseURL = `${req.protocol}://${req.headers.host}/${version}/developers`;
 
 		return {
-			developers: baseURL + `main`,
-			contributors: baseURL + `contributors`,
+			developers: `${baseURL}/main`,
+			contributors: `${baseURL}/contributors`,
 		};
 	}
 
@@ -43,8 +47,13 @@ export class DevelopersController {
 
 	@Post("/new")
 	@UseGuards(AdminGuard)
-	async addDeveloper(@Body() developer: Developer) {
-		const error = await this.developersService.add(developer).catch((e) => e);
+	async addDeveloper(
+		@Body()
+		{ name, type, github, website, twitter }: Developer & Developer["links"],
+	) {
+		const error = await this.developersService
+			.add({ name, type, links: { github, website, twitter } })
+			.catch((e) => e);
 
 		if (error) {
 			throw new BadRequestException(error.message);
