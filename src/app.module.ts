@@ -1,3 +1,4 @@
+import { AnalyticsModule } from "./analytics/analytics.module";
 import { BuilderModule } from "./builder/builder.module";
 import { CommitsModule } from "./commits/commits.module";
 import { ConfigModule } from "@nestjs/config";
@@ -15,6 +16,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 		BuilderModule,
 		CommitsModule,
 		DevelopersModule,
+		AnalyticsModule,
 	],
 })
 export class AppModule {}
