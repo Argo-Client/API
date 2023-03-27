@@ -15,12 +15,20 @@ export class BuilderService {
 
 	private readonly fileExtensions = ["apk", "snap"];
 
-	async handleFileUpload(file: Express.Multer.File, request: Request) {
-		const fileExtension = file.originalname.split(".").pop();
+	private isCorrectFileExtension(extension: string): boolean {
+		return this.fileExtensions.filter((item) => item == extension).length != 0;
+	}
 
-		if (this.fileExtensions.includes(fileExtension)) {
+	async handleFileUpload(file: Express.Multer.File, request: Request) {
+		const fileExtension = file.originalname
+			.split(".")
+			.pop()
+			.trim()
+			.toLowerCase();
+
+		if (!this.isCorrectFileExtension(fileExtension)) {
 			throw new BadRequestException(
-				`Filename must end with ${this.fileExtensions.join(" ")}`,
+				`Filename must end with ${this.fileExtensions.join(", ")}`,
 			);
 		}
 
@@ -40,7 +48,7 @@ export class BuilderService {
 
 		await ensureDir(apkDir);
 
-		const fileName = `Argo-${Date.now()}.apk`;
+		const fileName = `Argo-${Date.now()}.${fileExtension}`;
 
 		await writeFile(join(apkDir, fileName), file.buffer);
 
