@@ -2,6 +2,7 @@ import {
 	BadRequestException,
 	Controller,
 	Get,
+	NotFoundException,
 	Param,
 	Post,
 	Req,
@@ -13,7 +14,7 @@ import {
 import { Request, Response } from "express";
 import { createReadStream, pathExists } from "fs-extra";
 
-import { APK_DIR } from "./constants";
+import { getApkDir } from "./constants";
 import { AdminGuard } from "../admin.guard";
 import { BuilderService } from "./builder.service";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -31,21 +32,18 @@ export class BuilderController {
 		@UploadedFile() file: Express.Multer.File,
 		@Req() req: Request,
 	) {
-		if (!file) {
+		if (!file)
 			throw new BadRequestException("You must include a file to upload.");
-		}
 
 		return await this.builderService.handleFileUpload(file, req);
 	}
 
 	@Get("download/:file")
 	async getAPKFile(@Res() res: Response, @Param() params) {
-		const path = join(process.env.APK_DIR ?? APK_DIR, params.file);
+		const path = join(getApkDir(), params.file);
 
-		if (!(await pathExists(path))) {
-			res.status(404).end("File not found");
-			return;
-		}
+		if (!(await pathExists(path)))
+			throw new NotFoundException("File not found");
 
 		const file = createReadStream(path);
 

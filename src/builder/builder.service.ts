@@ -1,4 +1,9 @@
-import { APK_DIR, GITHUB_EVENT_HEADER, MAX_FILE_SIZE } from "./constants";
+import {
+	createApkFileName,
+	getApkDir,
+	GITHUB_EVENT_HEADER,
+	MAX_FILE_SIZE,
+} from "./constants";
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { ensureDir, writeFile } from "fs-extra";
 
@@ -44,11 +49,11 @@ export class BuilderService {
 
 		this.logger.log(`Got ${file.originalname} from ${request.ip}`);
 
-		const apkDir = process.env.APK_DIR ?? APK_DIR;
+		const apkDir = getApkDir();
 
 		await ensureDir(apkDir);
 
-		const fileName = `Argo-${Date.now()}.${fileExtension}`;
+		const fileName = createApkFileName(fileExtension);
 
 		await writeFile(join(apkDir, fileName), file.buffer);
 
@@ -64,35 +69,42 @@ export class BuilderService {
 	async handleWebhook(req: Request) {
 		const payload = JSON.parse(req.body.payload);
 
-		if (req.get(GITHUB_EVENT_HEADER) == GITHUB_EVENT_TYPE.PUSH) {
-			const commit = payload.head_commit;
+		switch (req.get(GITHUB_EVENT_HEADER)) {
+			case GITHUB_EVENT_TYPE.PUSH:
+				const commit = payload.head_commit;
 
-			await this.commitsService.insert({
-				author: {
-					username: payload.sender.login,
-					avatar: payload.sender.avatar_url,
-				},
-				id: commit.id,
-				message: commit.message,
-				pending: true,
-				timestamp: commit.timestamp,
-			});
-
-			return { success: "Inserted commit into database" };
-		}
-
-		if (req.get(GITHUB_EVENT_HEADER) == GITHUB_EVENT_TYPE.WORKFLOW) {
-			if (
-				payload?.action == "completed" &&
-				payload?.workflow_job?.conclusion == "failure"
-			) {
-				await this.commitsService.update(payload.head_sha, {
-					success: false,
-					pending: false,
+				await this.commitsService.insert({
+					author: {
+						username: payload.sender.login,
+						avatar: payload.sender.avatar_url,
+					},
+					id: commit.id,
+					message: commit.message,
+					pending: true,
+					timestamp: commit.timestamp,
 				});
 
-				return { success: "Updated commit in database" };
-			}
+				return { success: "Inserted commit into database" };
+
+			case GITHUB_EVENT_TYPE.WORKFLOW:
+				if (payload?.action == "completed") {
+					if (payload?.workflow_job?.conclusion == "failure") {
+						await this.commitsService.update(payload.head_sha, {
+							success: false,
+							pending: false,
+						});
+
+						return { success: "Updated commit in database" };
+					} else
+						throw new BadRequestException(
+							"Workflow conclusion is not failure, no new info",
+						);
+				}
+
+				throw new BadRequestException("Workflow is not yet completed");
+
+			default:
+				throw new BadRequestException("Unknown Github event type");
 		}
 	}
 }
